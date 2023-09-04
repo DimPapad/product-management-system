@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+    postgres:
+        image: postgres:latest
+        restart: always
+        container_name: product_management_system-postgres
+        ports:
+            - "5441:5432"
+        environment:
+            POSTGRES_USER: dim
+            POSTGRES_PASSWORD: myproduct
+            POSTGRES_DB: product_management_system
+        volumes:
+           - product-data:/var/lib/postgresql/data
+    pgadmin:
+        image: dpage/pgadmin4:latest
+        restart: always
+        container_name: product_management_system-pgadmin
+        ports:
+            - "5071:80"
+        depends_on:
+            - postgres
+        environment:
+            PGADMIN_DEFAULT_EMAIL: dim@gmail.com
+            PGADMIN_DEFAULT_PASSWORD: myproduct
+            POSTGRES_DB: product_management_system
+volumes:
+    product-data:
+       driver: local

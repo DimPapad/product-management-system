@@ -1,0 +1,38 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  defer-datasource-initialization: true
+  hibernate:
+    ddl-auto: update
+  datasource:
+    username: dim
+    password: myuser
+    url: jdbc:postgresql://localhost:5441/product_management_system?currentSchema=product_management_system
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+###
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+        SQL: DEBUG
+    springframework:
+      jdbc:
+        core:
+          JdbcTemplate: DEBUG
+          StatementCreatorUtils: TRACE
+###
+server:
+  port: 8081
+###
+springdoc:
+  api-docs:
+    path: "/api-docs"
