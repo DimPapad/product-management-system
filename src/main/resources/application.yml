@@ -8,7 +8,7 @@ spring:
     ddl-auto: update
   datasource:
     username: dim
-    password: myuser
+    password: myproduct
     url: jdbc:postgresql://localhost:5441/product_management_system?currentSchema=product_management_system
   sql:
     init:
@@ -35,4 +35,6 @@ server:
 ###
 springdoc:
   api-docs:
-    path: "/api-docs"
+    path: /api-docs
+  swagger-ui:
+    path: /swagger
