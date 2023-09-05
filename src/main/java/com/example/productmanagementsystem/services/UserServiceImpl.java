@@ -1,11 +1,9 @@
 package com.example.productmanagementsystem.services;
 
 import com.example.productmanagementsystem.models.User;
-import com.example.productmanagementsystem.repositories.ProductUserRepository;
 import com.example.productmanagementsystem.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -13,12 +11,10 @@ public class UserServiceImpl implements UserService{
 
 
     private final UserRepository userRepository;
-    private final ProductUserRepository productUserRepository;
 
 
-    public UserServiceImpl(UserRepository userRepository, ProductUserRepository productUserRepository) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository=userRepository;
-        this.productUserRepository=productUserRepository;
     }
 
     @Override
@@ -33,7 +29,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public List<User> getAllUsersByProductUuid(String productUuid) {
-        return userRepository.findAllById(productUserRepository.findAllByProductUuid(productUuid));
+        return userRepository.findAllByProductUuid(productUuid);
     }
 
 
