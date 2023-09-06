@@ -39,7 +39,7 @@ public class User implements Serializable {
     private String password;
     @NotNull
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "role_uuid")
     private Role role;
     @JsonIgnore
