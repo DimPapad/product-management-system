@@ -49,12 +49,12 @@ public class UserController {
             @ApiResponse(responseCode = "404",
                     description = "Users not found.",
                     content = @Content) })
-    @GetMapping("/{email}")
+    @GetMapping("/email/{email}")
     public User getUserByEmail(@Parameter(description = "email of user to be searched") @PathVariable String email) {
         return userService.getUserByEmail(email);
     }
 
-    @GetMapping("/{productUuid}")
+    @GetMapping("/product_uuid/{productUuid}")
     public List<User> getAllUsersByProductUuid(@PathVariable String productUuid) {
         return  userService.getAllUsersByProductUuid(productUuid);
     }
