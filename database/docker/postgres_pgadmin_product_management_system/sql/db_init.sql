@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS product_management_system.products_users
 	product_uuid character(36) NOT NULL,
 	user_uuid character(36) NOT NULL,
 	action_log character varying(300),
-    action_time timestamp with time zone NOT NULL,
+    action_time timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT products_users_product_uuid_fkey FOREIGN KEY (product_uuid)
     REFERENCES product_management_system.products (uuid) MATCH SIMPLE
     ON UPDATE RESTRICT

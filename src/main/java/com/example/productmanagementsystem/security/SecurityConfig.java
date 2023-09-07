@@ -1,18 +1,19 @@
 package com.example.productmanagementsystem.security;
 
 import com.example.productmanagementsystem.security.services.MyUserDetailsService;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 
+@EnableWebSecurity
 @Configuration
-public class SecurityConfig {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     private final MyUserDetailsService myUserDetailsService;
@@ -21,28 +22,28 @@ public class SecurityConfig {
         this.myUserDetailsService=myUserDetailsService;
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, MyUserDetailsService myUserDetailService) throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(myUserDetailService)
-                .passwordEncoder(getPasswordEncoder())
-                .and()
-                .build();
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+            .userDetailsService(myUserDetailsService)
+            .passwordEncoder(getPasswordEncoder());
     }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-       return http
-               .csrf().disable()
-               .authorizeHttpRequests((authorize)->authorize
-                       .requestMatchers(HttpMethod.GET).hasRole("ADMIN")
-                       .anyRequest().authenticated())
-               .httpBasic()
-               .and()
-               .build();
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .httpBasic()
+            .and()
+            .authorizeRequests()
+            .antMatchers(HttpMethod.POST, "/user/register").permitAll()
+            .antMatchers(HttpMethod.GET, "/user/login").hasAnyRole("USER","ADMIN")
+            .anyRequest().fullyAuthenticated()
+            .and()
+            .csrf().disable()
+            .formLogin().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
-    @Bean
     public PasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
