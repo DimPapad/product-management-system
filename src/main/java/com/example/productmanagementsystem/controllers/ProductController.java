@@ -1,5 +1,6 @@
 package com.example.productmanagementsystem.controllers;
 
+import com.example.productmanagementsystem.dto.ChangedProductDto;
 import com.example.productmanagementsystem.dto.ProductDto;
 import com.example.productmanagementsystem.models.Product;
 import com.example.productmanagementsystem.services.ProductService;
@@ -19,13 +20,28 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public List<Product> getAllProducts() {
+    public List<ProductDto> getAllProducts() {
        return productService.getAllProducts();
+    }
+
+    @GetMapping("/name")
+    public ProductDto getProductByName(@RequestBody ProductDto productDto) {
+        return productService.getProductByName(productDto);
     }
 
     @PostMapping("/add")
     public ProductDto addProduct(@RequestBody ProductDto productDto) {
         return productService.addProduct(productDto);
+    }
+
+    @PutMapping("/edit")
+    public ProductDto editProduct(@RequestBody ChangedProductDto changedProductDto) {
+        return productService.editProduct(changedProductDto);
+    }
+
+    @DeleteMapping("/delete/{productUuid}")
+    public ProductDto deleteProduct(@PathVariable String productUuid) {
+        return productService.deleteProduct(productUuid);
     }
 
 

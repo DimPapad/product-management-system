@@ -2,16 +2,15 @@ package com.example.productmanagementsystem.services;
 
 import com.example.productmanagementsystem.dto.NewUserDto;
 import com.example.productmanagementsystem.dto.UserDto;
-import com.example.productmanagementsystem.exceptions.PasswordNotMatchingException;
 import com.example.productmanagementsystem.models.User;
 import com.example.productmanagementsystem.repositories.RoleRepository;
 import com.example.productmanagementsystem.repositories.UserRepository;
+import com.example.productmanagementsystem.security.services.MyUserDetailsService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -19,7 +18,6 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository=userRepository;
@@ -59,24 +57,24 @@ public class UserServiceImpl implements UserService{
         userDto.setFirstName(newUser.getFirstName());
         userDto.setEmail(newUser.getEmail());
         userDto.setUsername(newUser.getUsername());
+        userDto.setRole(newUser.getRole().getName());
         return userDto;
     }
 
-
-//    @Override
-//    public List<User> getAllUsers() {
-//        return userRepository.findAll();
-//    }
-
-//    @Override
-//    public User getUserByEmail(String email) {
-//        return userRepository.findByEmail(email);
-//    }
-
-//    @Override
-//    public List<User> getAllUsersByProductUuid(String productUuid) {
-//        return userRepository.findAllByProductUuid(productUuid);
-//    }
+    @Override
+    public UserDto loggedInUser() {
+        if (!userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User not found!");
+        }
+        User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+        UserDto loggedInUserDto=new UserDto();
+        loggedInUserDto.setLastName(currentUser.getLastName());
+        loggedInUserDto.setFirstName(currentUser.getFirstName());
+        loggedInUserDto.setUsername(currentUser.getUsername());
+        loggedInUserDto.setEmail(currentUser.getEmail());
+        loggedInUserDto.setRole(currentUser.getRole().getName());
+        return loggedInUserDto;
+    }
 
 
 }

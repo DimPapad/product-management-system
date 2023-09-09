@@ -6,7 +6,6 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Getter
@@ -20,10 +19,8 @@ public class Role {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")    @Column(name = "uuid")
     private String uuid;
-    @NotNull
     @Column(name = "name")
     private String name;
-    @NotNull
     @JsonIgnore
     @OneToMany(mappedBy = "role")
     private Set<User> users;

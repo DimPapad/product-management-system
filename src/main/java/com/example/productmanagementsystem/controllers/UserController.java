@@ -2,12 +2,8 @@ package com.example.productmanagementsystem.controllers;
 
 import com.example.productmanagementsystem.dto.NewUserDto;
 import com.example.productmanagementsystem.dto.UserDto;
-import com.example.productmanagementsystem.exceptions.PasswordNotMatchingException;
-import com.example.productmanagementsystem.models.User;
 import com.example.productmanagementsystem.services.UserService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -25,20 +21,15 @@ public class UserController {
         return userService.registerUser(newUserDto);
     }
 
-//    @GetMapping("/all")
-//    public List<User> getAllUsers() {
-//        return userService.getAllUsers();
-//    }
-//
-//    @GetMapping("/email/{email}")
-//    public User getUserByEmail(@PathVariable String email) {
-//        return userService.getUserByEmail(email);
-//    }
-//
-//    @GetMapping("/product_uuid/{productUuid}")
-//    public List<User> getAllUsersByProductUuid(@PathVariable String productUuid) {
-//        return  userService.getAllUsersByProductUuid(productUuid);
-//    }
+    @GetMapping("/login")
+    public UserDto logInUser() {
+        return null;
+    }
+
+    @GetMapping("/home")
+    public UserDto loggedInUser() {
+        return userService.loggedInUser();
+    }
 
 
 }

@@ -1,16 +1,21 @@
 package com.example.productmanagementsystem.services;
 
+import com.example.productmanagementsystem.dto.ChangedProductDto;
 import com.example.productmanagementsystem.dto.ProductDto;
 import com.example.productmanagementsystem.models.Product;
+import com.example.productmanagementsystem.models.ProductUser;
+import com.example.productmanagementsystem.models.User;
 import com.example.productmanagementsystem.repositories.ProductRepository;
+import com.example.productmanagementsystem.repositories.ProductUserRepository;
 import com.example.productmanagementsystem.repositories.UserRepository;
-import com.example.productmanagementsystem.security.models.MyUserDetails;
-import com.example.productmanagementsystem.security.services.MyUserDetailsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,18 +24,25 @@ public class ProductServiceImpl implements ProductService{
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final ProductUserRepository productUserRepository;
 
-    public ProductServiceImpl (ProductRepository productRepository, UserRepository userRepository) {
+    public ProductServiceImpl (ProductRepository productRepository, UserRepository userRepository, ProductUserRepository productUserRepository) {
         this.productRepository=productRepository;
         this.userRepository=userRepository;
+        this.productUserRepository=productUserRepository;
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDto> getAllProducts() {
+        List<ProductDto> productDtos=new ArrayList<>();
+        productRepository.findAll()
+                .forEach(product -> productDtos.add(
+                        new ProductDto(product.getName(),product.getDescription(),product.getPrice())));
+        return productDtos;
     }
 
     @Override
+    @Transactional
     public ProductDto addProduct(ProductDto productDto) {
         if (productDto.getName().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product name is needed.");
@@ -44,12 +56,88 @@ public class ProductServiceImpl implements ProductService{
         if (productRepository.findByName(productDto.getName()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.ALREADY_REPORTED,"Product already exists.");
         }
+
         Product newProduct=new Product();
         newProduct.setName(productDto.getName());
         newProduct.setDescription(productDto.getDescription());
         newProduct.setPrice(productDto.getPrice());
-        newProduct.setUser(userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get());
-        productRepository.setActionLog("ADD");
+
+        User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        ProductUser newProductUser=new ProductUser();
+        newProductUser.setProduct(newProduct);
+        newProductUser.setUser(currentUser);
+        newProductUser.setActionLog("ADD");
+        newProductUser.setActionTime(new Timestamp(System.currentTimeMillis()));
+
+        newProduct.setUser(newProductUser);
+        currentUser.setProduct(newProductUser);
+
+        productRepository.save(newProduct);
+//        userRepository.save(currentUser);
+        productUserRepository.save(newProductUser);
+
+        return productDto;
+    }
+
+    @Override
+    @Transactional
+    public ProductDto editProduct(ChangedProductDto changedProductDto) {
+        if (!productRepository.findByName(changedProductDto.getOldName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product does not exist.");
+        }
+        Product changedProduct=productRepository.findByName(changedProductDto.getOldName()).get();
+        changedProduct.setName(changedProductDto.getNewName());
+        changedProduct.setDescription(changedProductDto.getDescription());
+        changedProduct.setPrice(changedProductDto.getPrice());
+
+        User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        ProductUser newProductUser=new ProductUser();
+        newProductUser.setUser(currentUser);
+        newProductUser.setProduct(changedProduct);
+        newProductUser.setActionLog("EDIT");
+        newProductUser.setActionTime(new Timestamp(System.currentTimeMillis()));
+
+        changedProduct.setUser(newProductUser);
+        currentUser.setProduct(newProductUser);
+
+        productRepository.save(changedProduct);
+//        userRepository.save(currentUser);
+        productUserRepository.save(newProductUser);
+
+        return new ProductDto(changedProductDto.getNewName(), changedProductDto.getDescription(), changedProductDto.getPrice());
+    }
+
+    @Override
+    @Transactional
+    public ProductDto deleteProduct(String productUuid) {
+        if (!productRepository.findById(productUuid).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product does not exist.");
+        }
+        Product deletedProduct=productRepository.findById(productUuid).get();
+        User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        ProductUser newProductUser=new ProductUser();
+        newProductUser.setProduct(deletedProduct);
+        newProductUser.setUser(currentUser);
+        newProductUser.setActionLog("DELETE");
+        newProductUser.setActionTime(new Timestamp(System.currentTimeMillis()));
+
+        productUserRepository.save(newProductUser);
+        productRepository.deleteById(productUuid);
+
+        return new ProductDto(deletedProduct.getName(), deletedProduct.getDescription(), deletedProduct.getPrice());
+    }
+
+    @Override
+    public ProductDto getProductByName(ProductDto productDto) {
+        if (!productRepository.findByName(productDto.getName()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product not found!");
+        }
+        Product product=productRepository.findByName(productDto.getName()).get();
+        productDto.setDescription(product.getDescription());
+        productDto.setPrice(product.getPrice());
         return productDto;
     }
 

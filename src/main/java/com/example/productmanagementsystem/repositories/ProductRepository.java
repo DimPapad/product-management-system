@@ -12,18 +12,23 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     Optional<Product> findByName(String name);
 
     @Query(value = """
-            UPDATE product_management_system.products_users
-            SET action_log='ADDED'
-            FROM
-            (SELECT product_uuid, user_uuid, action_log, action_time
-            FROM product_management_system.products_users
-            where user_uuid='07bd0463-2bb8-4edc-bf36-40e3abd4c9f6'
-            ORDER BY action_time DESC
-            LIMIT 1
-            ) AS subquery
-            WHERE product_management_system.user_uuid=subquery.user_uuid;
-            """,nativeQuery = true)
-    void setActionLog(String actionLog);
+                        WITH subquery AS
+                        (
+                        SELECT product_uuid, user_uuid, action_log, action_time
+                            FROM product_management_system.products_users
+                            WHERE user_uuid=?1
+                            ORDER BY action_time DESC
+                            LIMIT 1
+                        )
+                        UPDATE ONLY product_management_system.products_users as mytable
+                            SET action_log=?2
+                            FROM subquery
+                            WHERE mytable.action_time=subquery.action_time
+                                AND mytable.user_uuid=subquery.user_uuid
+                                AND mytable.product_uuid=subquery.product_uuid
+                        RETURNING mytable.product_uuid;
+                        """,nativeQuery = true)
+    void setActionLog(String userUuid, String actionLog);
 
 
 }

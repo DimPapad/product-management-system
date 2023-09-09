@@ -1,20 +1,17 @@
 package com.example.productmanagementsystem.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProductDto implements Serializable {
+public class ChangedProductDto implements Serializable {
 
 
-    private String name;
+    private String oldName;
+    private String newName;
     private String description;
     private float price;
 
