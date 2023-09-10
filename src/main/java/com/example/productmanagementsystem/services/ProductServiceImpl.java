@@ -38,6 +38,9 @@ public class ProductServiceImpl implements ProductService{
         productRepository.findAll()
                 .forEach(product -> productDtos.add(
                         new ProductDto(product.getName(),product.getDescription(),product.getPrice())));
+        if (productDtos.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT,"No products found");
+        }
         return productDtos;
     }
 
@@ -74,7 +77,6 @@ public class ProductServiceImpl implements ProductService{
         currentUser.setProduct(newProductUser);
 
         productRepository.save(newProduct);
-//        userRepository.save(currentUser);
         productUserRepository.save(newProductUser);
 
         return productDto;
@@ -84,12 +86,18 @@ public class ProductServiceImpl implements ProductService{
     @Transactional
     public ProductDto editProduct(ChangedProductDto changedProductDto) {
         if (productRepository.findByName(changedProductDto.getOldName()).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Product not found!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product not found!");
         }
         Product changedProduct=productRepository.findByName(changedProductDto.getOldName()).get();
-        changedProduct.setName(changedProductDto.getNewName());
-        changedProduct.setDescription(changedProductDto.getDescription());
-        changedProduct.setPrice(changedProductDto.getPrice());
+        if (!changedProductDto.getNewName().isEmpty()) {
+            changedProduct.setName(changedProductDto.getNewName());
+        }
+        if (!changedProductDto.getDescription().isEmpty()) {
+            changedProduct.setDescription(changedProductDto.getDescription());
+        }
+        if (changedProductDto.getPrice()>0) {
+            changedProduct.setPrice(changedProductDto.getPrice());
+        }
 
         User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
 
@@ -103,7 +111,6 @@ public class ProductServiceImpl implements ProductService{
         currentUser.setProduct(newProductUser);
 
         productRepository.save(changedProduct);
-//        userRepository.save(currentUser);
         productUserRepository.save(newProductUser);
 
         return new ProductDto(changedProductDto.getNewName(), changedProductDto.getDescription(), changedProductDto.getPrice());
@@ -113,7 +120,7 @@ public class ProductServiceImpl implements ProductService{
     @Transactional
     public ProductDto deleteProduct(String productUuid) {
         if (productRepository.findById(productUuid).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Product not found!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product not found!");
         }
         Product deletedProduct=productRepository.findById(productUuid).get();
         User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
@@ -133,7 +140,7 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public ProductDto getProductByName(ProductDto productDto) {
         if (productRepository.findByName(productDto.getName()).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Product not found!");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT,"Product not found!");
         }
         Product product=productRepository.findByName(productDto.getName()).get();
         productDto.setDescription(product.getDescription());

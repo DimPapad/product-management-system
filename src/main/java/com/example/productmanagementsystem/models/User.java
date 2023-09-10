@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,13 +39,6 @@ public class User implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "user")
     private Set<ProductUser> products=new HashSet<>();
-
-//    @JsonIgnore
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(name = "products_users",
-//                joinColumns = @JoinColumn(name = "user_uuid"),
-//                inverseJoinColumns = @JoinColumn(name = "product_uuid"))
-//    private Set<Product> products;
 
     public void setProduct(ProductUser productUser) {
         products.add(productUser);

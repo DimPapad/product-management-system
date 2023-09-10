@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -25,6 +26,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto registerUser(NewUserDto newUserDto) {
         if (newUserDto.getPassword().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Password is needed.");
@@ -64,7 +66,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserDto loggedInUser() {
         if (userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found!");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT,"User not found!");
         }
         User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         UserDto loggedInUserDto=new UserDto();
@@ -77,12 +79,13 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public UserDto changeRole(UserDto userDto) {
         if (userRepository.findByUsername(userDto.getUsername()).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User not found!");
         }
         if (roleRepository.findByName(userDto.getRole()).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Role not found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Role not found!");
         }
         User changedUser=userRepository.findByUsername(userDto.getUsername()).get();
         Role role=roleRepository.findByName(userDto.getRole()).get();
