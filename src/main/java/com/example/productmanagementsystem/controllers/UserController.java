@@ -31,5 +31,10 @@ public class UserController {
         return userService.loggedInUser();
     }
 
+    @PutMapping("/changerole")
+    public UserDto changeRole(@RequestBody UserDto userDto) {
+        return userService.changeRole(userDto);
+    }
+
 
 }

@@ -2,10 +2,10 @@ package com.example.productmanagementsystem.services;
 
 import com.example.productmanagementsystem.dto.NewUserDto;
 import com.example.productmanagementsystem.dto.UserDto;
+import com.example.productmanagementsystem.models.Role;
 import com.example.productmanagementsystem.models.User;
 import com.example.productmanagementsystem.repositories.RoleRepository;
 import com.example.productmanagementsystem.repositories.UserRepository;
-import com.example.productmanagementsystem.security.services.MyUserDetailsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService{
         newUser.setUsername(newUserDto.getUsername());
         newUser.setEmail(newUserDto.getEmail());
         newUser.setPassword(new BCryptPasswordEncoder().encode(newUserDto.getPassword()));
-        newUser.setRole(roleRepository.findByName("ROLE_USER"));
+        newUser.setRole(roleRepository.findByName("ROLE_USER").get());
         userRepository.save(newUser);
         UserDto userDto=new UserDto();
         userDto.setLastName(newUser.getLastName());
@@ -63,8 +63,8 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDto loggedInUser() {
-        if (!userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User not found!");
+        if (userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found!");
         }
         User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         UserDto loggedInUserDto=new UserDto();
@@ -74,6 +74,24 @@ public class UserServiceImpl implements UserService{
         loggedInUserDto.setEmail(currentUser.getEmail());
         loggedInUserDto.setRole(currentUser.getRole().getName());
         return loggedInUserDto;
+    }
+
+    @Override
+    public UserDto changeRole(UserDto userDto) {
+        if (userRepository.findByUsername(userDto.getUsername()).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found!");
+        }
+        if (roleRepository.findByName(userDto.getRole()).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Role not found");
+        }
+        User changedUser=userRepository.findByUsername(userDto.getUsername()).get();
+        Role role=roleRepository.findByName(userDto.getRole()).get();
+        changedUser.setRole(role);
+        userRepository.save(changedUser);
+        userDto.setLastName(changedUser.getLastName());
+        userDto.setFirstName(changedUser.getFirstName());
+        userDto.setEmail(changedUser.getEmail());
+        return userDto;
     }
 
 

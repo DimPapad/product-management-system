@@ -2,7 +2,6 @@ package com.example.productmanagementsystem.controllers;
 
 import com.example.productmanagementsystem.dto.ChangedProductDto;
 import com.example.productmanagementsystem.dto.ProductDto;
-import com.example.productmanagementsystem.models.Product;
 import com.example.productmanagementsystem.services.ProductService;
 import org.springframework.web.bind.annotation.*;
 
