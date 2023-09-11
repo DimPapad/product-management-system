@@ -2,6 +2,7 @@ package com.example.productmanagementsystem.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 @Setter
 @Table(name = "roles")
 @Entity
+@NoArgsConstructor
 public class Role {
 
 
@@ -25,5 +27,8 @@ public class Role {
     @OneToMany(mappedBy = "role")
     private Set<User> users;
 
+    public Role(String name) {
+        this.name=name;
+    }
 
 }
