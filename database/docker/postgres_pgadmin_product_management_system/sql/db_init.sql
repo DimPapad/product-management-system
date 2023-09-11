@@ -78,17 +78,7 @@ CREATE TABLE IF NOT EXISTS product_management_system.products_users
 	action_log character varying(300),
     action_time timestamp with time zone,
     product_user_uuid character(36) NOT NULL,
-    CONSTRAINT products_users_pkey PRIMARY KEY (product_user_uuid),
---     CONSTRAINT products_users_product_uuid_fkey FOREIGN KEY (product_uuid)
---     REFERENCES product_management_system.products (uuid) MATCH SIMPLE
---     ON UPDATE CASCADE
---     ON DELETE SET DEFAULT
---     NOT VALID,
---     CONSTRAINT products_users_user_uuid_fkey FOREIGN KEY (user_uuid)
---     REFERENCES product_management_system.users (uuid) MATCH SIMPLE
---     ON UPDATE CASCADE
---     ON DELETE SET DEFAULT
---     NOT VALID
+    CONSTRAINT products_users_pkey PRIMARY KEY (product_user_uuid)
 )
 
 TABLESPACE pg_default;

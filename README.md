@@ -45,5 +45,9 @@ File path: __...\product-management-system\database\docker\postgres_pgadmin_prod
 - Server: __localhost__  
 - Port: __8081__  
 
+#### Credentials
+- Admin: username: PapGian, password: 1234
+- User: username: PapIoan, password: 1234
+
 #### Swagger Documentation
 http://localhost:8081/swagger-ui/
