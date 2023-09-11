@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers(HttpMethod.GET, "/product/name").hasAnyRole("USER","ADMIN")
             .antMatchers(HttpMethod.POST, "/product/add").hasAnyRole("USER","ADMIN")
             .antMatchers(HttpMethod.PUT, "/product/edit").hasRole("ADMIN")
-            .antMatchers(HttpMethod.DELETE, "/product/delete").hasRole("ADMIN")
+            .antMatchers(HttpMethod.DELETE, "/product/delete/*").hasRole("ADMIN")
             .anyRequest().fullyAuthenticated()
             .and()
             .csrf().disable()

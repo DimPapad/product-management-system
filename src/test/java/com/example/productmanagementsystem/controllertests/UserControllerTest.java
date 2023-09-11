@@ -43,7 +43,7 @@ public class UserControllerTest {
     private MyUserDetailsService myUserDetailsService;
 
     @Test
-    void whenValidInput_thenReturns201() throws Exception {
+    void whenValidInputOnRegister_thenReturns201() throws Exception {
         NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","1234","1234");
 
         mockMvc.perform(post("/user/register")

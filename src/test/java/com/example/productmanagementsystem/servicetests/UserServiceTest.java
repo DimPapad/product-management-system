@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
@@ -27,8 +28,6 @@ public class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private RoleRepository roleRepository;
-//    @InjectMocks
-//    private SecurityContextHolder securityContextHolder;
 
     @InjectMocks
     private UserServiceImpl userServiceImpl;
@@ -41,38 +40,52 @@ public class UserServiceTest {
     public void whenRegisterUser_thenReturnsUser() {
         NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","1234","1234");
         UserDto expectedUserDto=new UserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","ROLE_USER");
-        given(userRepository.save(user)).willReturn(user);
+//        given(userRepository.save(user)).willReturn(user);
         given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.of(new Role("ROLE_USER")));
         UserDto actualUserDto=userServiceImpl.registerUser(givenNewUserDto);
         Assertions.assertEquals(expectedUserDto,actualUserDto);
     }
 
     @Test
-    public void whenRegisterUserWithBlankValue_thenReturns404() {
+    public void whenRegisterUserWithBlankValue_thenReturns400() {
         NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios","","papdim@pmail.com","1234","1234");
         Exception exception=Assertions.assertThrowsExactly(ResponseStatusException.class,()->userServiceImpl.registerUser(givenNewUserDto));
         Assertions.assertEquals("400 BAD_REQUEST \"Username is needed.\"",exception.getMessage());
     }
 
     @Test
-    public void whenRegisterUserWithNotMatchingPasswords_thenReturns404() {
+    public void whenRegisterUserWithNotMatchingPasswords_thenReturns400() {
         NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","12345","1234");
-        Exception exception=Assertions.assertThrowsExactly(ResponseStatusException.class,()->userServiceImpl.registerUser(givenNewUserDto));
-        Assertions.assertEquals("400 BAD_REQUEST \"Passwords do not match.\"",exception.getMessage());
+        Exception notMatchingPasswords=Assertions.assertThrowsExactly(ResponseStatusException.class,()->userServiceImpl.registerUser(givenNewUserDto));
+        Assertions.assertEquals("400 BAD_REQUEST \"Passwords do not match.\"",notMatchingPasswords.getMessage());
     }
 
-//    @Test
-//    @WithMockUser(username = "mocker",roles = "ADMIN",setupBefore = TestExecutionEvent.TEST_METHOD)
-//    public void whenLoggedInUser_thenReturnsUser() {
-////        User user=new User("asd","asd","asd","mocker","asd","asd","asd","asd");
-////        NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","1234","1234");
-////        UserDto expectedUserDto=new UserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","ROLE_USER");
-//        given(userRepository.findByUsername("mocker")).willReturn(Optional.of(user));
-//        given(securityContextHolder.getContext().getAuthentication().getName()).willReturn("mocker");
-////        given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.of(new Role("ROLE_USER")));
-//        UserDto actualUserDto=userServiceImpl.loggedInUser();
-//        Assertions.assertEquals("mocker",actualUserDto.getUsername());
-//    }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void whenChangeRole_thenReturnsUser() {
+        UserDto expectedUserDto=new UserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","ROLE_ADMIN");
+        given(userRepository.findByUsername("PapDim")).willReturn(Optional.of(user));
+        given(roleRepository.findByName("ROLE_ADMIN")).willReturn(Optional.of(role));
+        UserDto actualUserDto=userServiceImpl.changeRole(expectedUserDto);
+        Assertions.assertEquals(expectedUserDto,actualUserDto);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void whenChangeToRoleThatDoesNotExist_thenReturns400() {
+        UserDto expectedUserDto=new UserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","ROLE_ADMIN");
+        given(userRepository.findByUsername("PapDim")).willReturn(Optional.of(user));
+        Exception roleException=Assertions.assertThrows(ResponseStatusException.class,()->userServiceImpl.changeRole(expectedUserDto));
+        Assertions.assertEquals("400 BAD_REQUEST \"Role not found!\"",roleException.getMessage());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void whenChangeRoleToNonExistingUser_thenReturns400() {
+        UserDto expectedUserDto=new UserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","ROLE_ADMIN");
+        Exception userException=Assertions.assertThrows(ResponseStatusException.class,()->userServiceImpl.changeRole(expectedUserDto));
+        Assertions.assertEquals("400 BAD_REQUEST \"User not found!\"",userException.getMessage());
+    }
 
 
 }
