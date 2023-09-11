@@ -1,19 +1,35 @@
 # Product Management System Application
 
+## 1. Features
+- User register and login in their home page with their credentials.
+- Users have roles (user/admin) in order to view, add, edit and delete products according to their role.
+- A user can view product(s) and add a product.
+- An admin can also edit and delete a product and change the role of another user.
+- Every action of product addition, edit, deletion is recorded with the appropriate log and timestamp, referring to the user and product.
+
 ---
 
-## Database Setup and Access
+## 2. Tech Stack
+- SpringBoot
+- PostgreSQL
+- pgAdmin
 
-### Docker-compose
+---
+
+## 3. Usage Instructions
+
+### Database Setup and Access
+
+#### Docker-compose
 File path: __...\product-management-system\database\docker\postgres_pgadmin_product_management_system\docker-compose.yml__
 
-### pg-Admin connection
+#### pg-Admin connection
 - Server: __localhost__  
 - Port: __5071__  
 - Email: __dim@gmail.com__  
 - Password: __myproduct__  
 
-### PostgreSql Server Setup for data access
+#### PostgreSQL Server Setup for data access
 1. Add New Server -OR- context menu->Register Server
 2. [General] tab
    1. Name: product_management_system
@@ -25,11 +41,9 @@ File path: __...\product-management-system\database\docker\postgres_pgadmin_prod
    5. Password: myproduct
    6. Save password: CHECKED
 
----
-
-## Application Access
+### Application Access
 - Server: __localhost__  
 - Port: __8081__  
 
-### Swagger Documentation
+#### Swagger Documentation
 http://localhost:8081/swagger-ui/
