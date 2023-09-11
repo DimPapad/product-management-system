@@ -26,7 +26,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/login")
     public UserDto logInUser() {
-        return null;
+        return new UserDto();
     }
 
     @ResponseStatus(HttpStatus.OK)

@@ -1,7 +1,9 @@
 package com.example.productmanagementsystem.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -14,6 +16,8 @@ import java.util.Set;
 @Setter
 @Table(name = "users")
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements Serializable {
 
     @Id

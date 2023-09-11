@@ -22,5 +22,10 @@ public class UserDto {
     @NotNull
     private String role;
 
+    public UserDto(String username, String role) {
+        this.username=username;
+        this.role=role;
+    }
+
 
 }
