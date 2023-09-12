@@ -47,10 +47,10 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional
     public ProductDto addProduct(ProductDto productDto) {
-        if (productDto.getName().isBlank()) {
+        if (productDto.getName()==null || productDto.getName().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product name is needed.");
         }
-        if (productDto.getDescription().isBlank()) {
+        if (productDto.getDescription()==null || productDto.getDescription().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product description is needed.");
         }
         if ((productDto.getPrice()<=0)) {
@@ -64,19 +64,15 @@ public class ProductServiceImpl implements ProductService{
         newProduct.setName(productDto.getName());
         newProduct.setDescription(productDto.getDescription());
         newProduct.setPrice(productDto.getPrice());
+        productRepository.save(newProduct);
 
         User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
 
         ProductUser newProductUser=new ProductUser();
-        newProductUser.setProduct(newProduct);
-        newProductUser.setUser(currentUser);
+        newProductUser.setProductUuid(newProduct.getUuid());
+        newProductUser.setUserUuid(currentUser.getUuid());
         newProductUser.setActionLog("ADD");
         newProductUser.setActionTime(new Timestamp(System.currentTimeMillis()));
-
-        newProduct.setUser(newProductUser);
-        currentUser.setProduct(newProductUser);
-
-        productRepository.save(newProduct);
         productUserRepository.save(newProductUser);
 
         return productDto;
@@ -89,31 +85,27 @@ public class ProductServiceImpl implements ProductService{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product not found!");
         }
         Product changedProduct=productRepository.findByName(changedProductDto.getOldName()).get();
-        if (!changedProductDto.getNewName().isEmpty()) {
+        if (changedProductDto.getNewName()!=null && !changedProductDto.getNewName().isEmpty()) {
             changedProduct.setName(changedProductDto.getNewName());
         }
-        if (!changedProductDto.getDescription().isEmpty()) {
+        if (changedProductDto.getDescription()!=null && !changedProductDto.getDescription().isEmpty()) {
             changedProduct.setDescription(changedProductDto.getDescription());
         }
         if (changedProductDto.getPrice()>0) {
             changedProduct.setPrice(changedProductDto.getPrice());
         }
+        productRepository.save(changedProduct);
 
         User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
 
         ProductUser newProductUser=new ProductUser();
-        newProductUser.setUser(currentUser);
-        newProductUser.setProduct(changedProduct);
+        newProductUser.setUserUuid(currentUser.getUuid());
+        newProductUser.setProductUuid(changedProduct.getUuid());
         newProductUser.setActionLog("EDIT");
         newProductUser.setActionTime(new Timestamp(System.currentTimeMillis()));
-
-        changedProduct.setUser(newProductUser);
-        currentUser.setProduct(newProductUser);
-
-        productRepository.save(changedProduct);
         productUserRepository.save(newProductUser);
 
-        return new ProductDto(changedProductDto.getNewName(), changedProductDto.getDescription(), changedProductDto.getPrice());
+        return new ProductDto(changedProduct.getName(), changedProduct.getDescription(), changedProduct.getPrice());
     }
 
     @Override
@@ -126,12 +118,12 @@ public class ProductServiceImpl implements ProductService{
         User currentUser=userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
 
         ProductUser newProductUser=new ProductUser();
-        newProductUser.setProduct(deletedProduct);
-        newProductUser.setUser(currentUser);
+        newProductUser.setProductUuid(deletedProduct.getUuid());
+        newProductUser.setUserUuid(currentUser.getUuid());
         newProductUser.setActionLog("DELETE");
         newProductUser.setActionTime(new Timestamp(System.currentTimeMillis()));
-
         productUserRepository.save(newProductUser);
+
         productRepository.deleteById(productUuid);
 
         return new ProductDto(deletedProduct.getName(), deletedProduct.getDescription(), deletedProduct.getPrice());

@@ -9,8 +9,6 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -19,6 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {
+
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -39,13 +38,6 @@ public class User implements Serializable {
     @ManyToOne
     @JoinColumn(name = "role_uuid")
     private Role role;
-    @JsonIgnore
-    @OneToMany(mappedBy = "user")
-    private Set<ProductUser> products=new HashSet<>();
-
-    public void setProduct(ProductUser productUser) {
-        products.add(productUser);
-    }
 
 
 }
