@@ -28,19 +28,15 @@ public class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private RoleRepository roleRepository;
-
     @InjectMocks
     private UserServiceImpl userServiceImpl;
-    @InjectMocks
-    private User user;
-    @InjectMocks
-    private Role role;
+    private final User user=new User();
+    private final Role role=new Role();
 
     @Test
     public void whenRegisterUser_thenReturnsUser() {
         NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","1234","1234");
         UserDto expectedUserDto=new UserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","ROLE_USER");
-//        given(userRepository.save(user)).willReturn(user);
         given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.of(new Role("ROLE_USER")));
         UserDto actualUserDto=userServiceImpl.registerUser(givenNewUserDto);
         Assertions.assertEquals(expectedUserDto,actualUserDto);
