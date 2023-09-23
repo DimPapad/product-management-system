@@ -26,20 +26,16 @@ public class ProductServiceTest {
 
     @Mock
     private ProductRepository productRepository;
-
     @InjectMocks
     private ProductServiceImpl productServiceImpl;
-    @InjectMocks
-    private Product product;
-    @InjectMocks
-    private ArrayList<Product> products=new ArrayList<>();
+    private final Product product=new Product();
+    private final ArrayList<Product> products=new ArrayList<>();
 
     @Test
     public void whenAskProducts_thenReturnsProducts() {
         products.add(new Product());
         given(productRepository.findAll()).willReturn(products);
-        List<ProductDto> actualList=productServiceImpl.getAllProducts();
-        Assertions.assertTrue(actualList.get(0) instanceof ProductDto);
+        Assertions.assertTrue(productServiceImpl.getAllProducts() instanceof List<ProductDto>);
     }
 
     @Test

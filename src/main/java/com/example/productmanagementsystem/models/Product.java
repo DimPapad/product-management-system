@@ -16,7 +16,8 @@ public class Product implements Serializable {
 
     @Id
     @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")    @Column(name = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @Column(name = "uuid")
     private String uuid;
     @Column(name = "name")
     private String name;
