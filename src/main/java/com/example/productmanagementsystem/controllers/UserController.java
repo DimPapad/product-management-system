@@ -25,7 +25,8 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 201,message = "Successfully registered."),
             @ApiResponse(code = 400,message = "All fields are necessary. Passwords should match."),
-            @ApiResponse(code = 208,message = "User already registered")
+            @ApiResponse(code = 208,message = "User already registered"),
+            @ApiResponse(code = 500,message = "User Role does not exist")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")

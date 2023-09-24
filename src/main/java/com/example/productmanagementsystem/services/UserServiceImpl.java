@@ -52,6 +52,9 @@ public class UserServiceImpl implements UserService{
         newUser.setUsername(newUserDto.getUsername());
         newUser.setEmail(newUserDto.getEmail());
         newUser.setPassword(new BCryptPasswordEncoder().encode(newUserDto.getPassword()));
+        if  (roleRepository.findByName("ROLE_USER").isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There is not ROLE_USER in the database, in order to be assigned to the new User.");
+        }
         newUser.setRole(roleRepository.findByName("ROLE_USER").get());
         userRepository.save(newUser);
         UserDto userDto=new UserDto();

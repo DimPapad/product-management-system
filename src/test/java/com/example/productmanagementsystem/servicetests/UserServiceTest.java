@@ -57,6 +57,14 @@ public class UserServiceTest {
     }
 
     @Test
+    public void whenRegisterUserAndRoleUserDoesNotExist_thenReturns500() {
+        NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","1234","1234");
+        given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.empty());
+        Exception notExistingRoleUser=Assertions.assertThrowsExactly(ResponseStatusException.class,()->userServiceImpl.registerUser(givenNewUserDto));
+        Assertions.assertEquals("500 INTERNAL_SERVER_ERROR \"There is not ROLE_USER in the database, in order to be assigned to the new User.\"",notExistingRoleUser.getMessage());
+    }
+
+    @Test
     @WithMockUser(roles = "ADMIN")
     public void whenChangeRole_thenReturnsUser() {
         UserDto expectedUserDto=new UserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","ROLE_ADMIN");

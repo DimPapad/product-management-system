@@ -64,7 +64,7 @@ public class UserControllerTest {
         Mockito.verify(userService, times(1)).registerUser(newUserDtoArgumentCaptor.capture());
         Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getLastName(),"Papadogiannakis");
         Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getFirstName(),"Dimitrios");
-        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getUsername(),null);
+        Assertions.assertNull(newUserDtoArgumentCaptor.getValue().getUsername());
         Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getEmail(),"papdim@pmail.com");
         Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getPassword(),"1234");
         Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getMatchingPassword(),"12345");
