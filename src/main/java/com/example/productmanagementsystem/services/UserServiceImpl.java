@@ -91,8 +91,8 @@ public class UserServiceImpl implements UserService{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Role not found!");
         }
         User changedUser=userRepository.findByUsername(userDto.getUsername()).get();
-        Role role=roleRepository.findByName(userDto.getRole()).get();
-        changedUser.setRole(role);
+        Role newRole=roleRepository.findByName(userDto.getRole()).get();
+        changedUser.setRole(newRole);
         userRepository.save(changedUser);
         userDto.setLastName(changedUser.getLastName());
         userDto.setFirstName(changedUser.getFirstName());

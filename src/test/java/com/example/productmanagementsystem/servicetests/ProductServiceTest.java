@@ -39,33 +39,52 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void whenAskProductsAndThereIsNone_thenReturns204() {
-        given(productRepository.findAll()).willReturn(products);
-        Exception noProductsException=Assertions.assertThrows(ResponseStatusException.class,()->productServiceImpl.getAllProducts());
-        Assertions.assertEquals("204 NO_CONTENT \"No products found\"",noProductsException.getMessage());
-    }
-
-    @Test
     public void whenAskProduct_thenReturnsProduct() {
-        ProductDto givenProductDto=new ProductDto("iPhone","Mobile Phone",500f);
-        given(productRepository.findByName(givenProductDto.getName())).willReturn(Optional.of(product));
-        ProductDto actualProductDto=productServiceImpl.getProductByName(givenProductDto);
-        Assertions.assertEquals(givenProductDto,actualProductDto);
+        ProductDto givenAndExpectedProductDto=new ProductDto("iPhone","Mobile Phone",500f);
+        given(productRepository.findByName(givenAndExpectedProductDto.getName())).willReturn(Optional.of(product));
+        ProductDto actualProductDto=productServiceImpl.getProductByName(givenAndExpectedProductDto);
+        Assertions.assertEquals(givenAndExpectedProductDto,actualProductDto);
     }
 
     @Test
     public void whenAskProductThatDoesNotExist_thenReturns204() {
         ProductDto givenProductDto=new ProductDto("iPhone","Mobile Phone",500f);
         Exception noProductException=Assertions.assertThrows(ResponseStatusException.class,()->productServiceImpl.getProductByName(givenProductDto));
-        Assertions.assertEquals("204 NO_CONTENT \"Product not found!\"",noProductException.getMessage());
+        Assertions.assertEquals("400 BAD_REQUEST \"There is no product with this name.\"",noProductException.getMessage());
     }
 
     @Test
     @WithMockUser
-    public void whenAddProductWithABlankField_thenReturns400() {
-        ProductDto givenProductDto=new ProductDto("","Mobile Phone",500f);
-        Exception blankFieldException=Assertions.assertThrows(ResponseStatusException.class,()->productServiceImpl.addProduct(givenProductDto));
-        Assertions.assertEquals("400 BAD_REQUEST \"Product name is needed.\"",blankFieldException.getMessage());
+    public void whenAddProductWithBlankName_thenReturns400() {
+        ProductDto givenProductDto=new ProductDto("  ","Mobile Phone",500f);
+        Exception blankNameException=Assertions.assertThrows(ResponseStatusException.class,()->productServiceImpl.addProduct(givenProductDto));
+        Assertions.assertEquals("400 BAD_REQUEST \"Product name is needed.\"",blankNameException.getMessage());
+    }
+
+    @Test
+    @WithMockUser
+    public void whenAddProductWithBlankDescription_thenReturns400() {
+        ProductDto givenProductDto=new ProductDto("iPhone","  ",500f);
+        Exception blankDescriptionException=Assertions.assertThrows(ResponseStatusException.class,()->productServiceImpl.addProduct(givenProductDto));
+        Assertions.assertEquals("400 BAD_REQUEST \"Product description is needed.\"",blankDescriptionException.getMessage());
+    }
+
+    @Test
+    @WithMockUser
+    public void whenAddProductWithBlankPrice_thenReturns400() {
+        ProductDto givenProductDto=new ProductDto();
+        givenProductDto.setName("iPhone");
+        givenProductDto.setDescription("Mobile Phone");
+        Exception invalidPriceException=Assertions.assertThrows(ResponseStatusException.class,()->productServiceImpl.addProduct(givenProductDto));
+        Assertions.assertEquals("400 BAD_REQUEST \"Product price is needed and should be valid.\"",invalidPriceException.getMessage());
+    }
+
+    @Test
+    @WithMockUser
+    public void whenAddProductWithInvalidPrice_thenReturns400() {
+        ProductDto givenProductDto=new ProductDto("iPhone","Mobile Phone",-5f);
+        Exception invalidPriceException=Assertions.assertThrows(ResponseStatusException.class,()->productServiceImpl.addProduct(givenProductDto));
+        Assertions.assertEquals("400 BAD_REQUEST \"Product price is needed and should be valid.\"",invalidPriceException.getMessage());
     }
 
     @Test

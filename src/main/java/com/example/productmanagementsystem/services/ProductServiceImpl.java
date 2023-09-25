@@ -36,11 +36,7 @@ public class ProductServiceImpl implements ProductService{
     public List<ProductDto> getAllProducts() {
         List<ProductDto> productDtos=new ArrayList<>();
         productRepository.findAll()
-                .forEach(product -> productDtos.add(
-                        new ProductDto(product.getName(),product.getDescription(),product.getPrice())));
-        if (productDtos.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT,"No products found");
-        }
+                .forEach(product -> productDtos.add(new ProductDto(product.getName(),product.getDescription(),product.getPrice())));
         return productDtos;
     }
 
@@ -85,10 +81,10 @@ public class ProductServiceImpl implements ProductService{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product not found!");
         }
         Product changedProduct=productRepository.findByName(changedProductDto.getOldName()).get();
-        if (changedProductDto.getNewName()!=null && !changedProductDto.getNewName().isEmpty()) {
+        if (changedProductDto.getNewName()!=null && !changedProductDto.getNewName().isBlank()) {
             changedProduct.setName(changedProductDto.getNewName());
         }
-        if (changedProductDto.getDescription()!=null && !changedProductDto.getDescription().isEmpty()) {
+        if (changedProductDto.getDescription()!=null && !changedProductDto.getDescription().isBlank()) {
             changedProduct.setDescription(changedProductDto.getDescription());
         }
         if (changedProductDto.getPrice()>0) {
@@ -132,7 +128,7 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public ProductDto getProductByName(ProductDto productDto) {
         if (productRepository.findByName(productDto.getName()).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT,"Product not found!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"There is no product with this name.");
         }
         Product product=productRepository.findByName(productDto.getName()).get();
         productDto.setDescription(product.getDescription());

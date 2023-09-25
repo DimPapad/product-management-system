@@ -44,7 +44,7 @@ public class UserController {
         return null;
     }
 
-    @Operation(summary = "User Home Page",description = "User home page accessed with authorization. Returns logged in user information.")
+    @Operation(summary = "User Home Page",description = "User home page accessed with authentication. Returns logged in user information.")
     @ApiResponses(value = {
             @ApiResponse(code = 200,message = "Home page successfully accessed and user information retrieved."),
             @ApiResponse(code = 204,message = "User not found.")

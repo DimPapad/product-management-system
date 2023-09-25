@@ -42,20 +42,20 @@ public class ProductControllerTest {
     private MyUserDetailsService myUserDetailsService;
 
     @Test
-    void whenNotAuthenticatedToViewAllProducts_thenReturns401() throws Exception {
+    void whenUnauthorizedToViewAllProducts_thenReturns401() throws Exception {
         mockMvc.perform(get("/product/all"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser
-    void whenAuthenticatedAndAuthorizedToViewAllProducts_thenReturns200() throws Exception {
+    void whenAuthorizedAndAuthenticatedToViewAllProducts_thenReturns200() throws Exception {
         mockMvc.perform(get("/product/all"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void whenNotAuthenticatedToViewOneProduct_thenReturns401() throws Exception {
+    void whenUnauthorizedToViewOneProduct_thenReturns401() throws Exception {
         ProductDto givenProductDto=new ProductDto("iPhone","Mobile Phone",500f);
 
         mockMvc.perform(get("/product/name")
@@ -66,7 +66,7 @@ public class ProductControllerTest {
 
     @Test
     @WithMockUser
-    void whenAuthenticatedAndAuthorizedToViewOneProduct_thenReturns200() throws Exception {
+    void whenAuthorizedAndAuthenticatedToViewOneProduct_thenReturns200() throws Exception {
         ProductDto givenProductDto=new ProductDto("iPhone","Mobile Phone",500f);
 
         mockMvc.perform(get("/product/name")
@@ -76,7 +76,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void whenNotAuthenticatedToAddProduct_thenReturns401() throws Exception {
+    void whenUnauthorizedToAddProduct_thenReturns401() throws Exception {
         ProductDto givenProductDto=new ProductDto("iPhone","Mobile Phone",500f);
 
         mockMvc.perform(post("/product/add")
@@ -87,7 +87,7 @@ public class ProductControllerTest {
 
     @Test
     @WithMockUser
-    void whenAuthenticatedToAddProduct_thenReturns201() throws Exception {
+    void whenAuthorizedAndAuthenticatedToAddProduct_thenReturns201() throws Exception {
         ProductDto givenProductDto=new ProductDto("iPhone","Mobile Phone",500f);
 
         mockMvc.perform(post("/product/add")
@@ -97,7 +97,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void whenNotAuthenticatedToEditProduct_thenReturns401() throws Exception {
+    void whenUnauthorizedToEditProduct_thenReturns401() throws Exception {
         ChangedProductDto givenChangedProductDto=new ChangedProductDto("Android","iPhone","Mobile Phone",500f);
 
         mockMvc.perform(put("/product/edit")
@@ -129,7 +129,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void whenNotAuthenticatedToDeleteProduct_thenReturns401() throws Exception {
+    void whenUnauthorizedToDeleteProduct_thenReturns401() throws Exception {
         mockMvc.perform(delete("/product/delete/{productUuid}","productUuid"))
                 .andExpect(status().isUnauthorized());
     }
@@ -150,7 +150,7 @@ public class ProductControllerTest {
 
     @Test
     @WithMockUser
-    void whenInputToGetProductByNameController_thenSameInputToService() throws Exception {
+    void whenInputToGetProductByName_thenSameInputToService() throws Exception {
         ProductDto givenProductDto=new ProductDto("iPhone","Mobile Phone",500f);
 
         mockMvc.perform(get("/product/name")
@@ -159,14 +159,14 @@ public class ProductControllerTest {
 
         ArgumentCaptor<ProductDto> newProductDtoArgumentCaptor = ArgumentCaptor.forClass(ProductDto.class);
         Mockito.verify(productService, times(1)).getProductByName(newProductDtoArgumentCaptor.capture());
-        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getName(),"iPhone");
-        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getDescription(),"Mobile Phone");
-        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getPrice(),500);
+        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getName(),givenProductDto.getName());
+        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getDescription(),givenProductDto.getDescription());
+        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getPrice(),givenProductDto.getPrice());
     }
 
     @Test
     @WithMockUser
-    void whenInputToAddProductController_thenSameInputToService() throws Exception {
+    void whenInputToAddProduct_thenSameInputToService() throws Exception {
         ProductDto givenProductDto=new ProductDto("iPhone","Mobile Phone",500f);
 
         mockMvc.perform(post("/product/add")
@@ -175,14 +175,14 @@ public class ProductControllerTest {
 
         ArgumentCaptor<ProductDto> newProductDtoArgumentCaptor = ArgumentCaptor.forClass(ProductDto.class);
         Mockito.verify(productService, times(1)).addProduct(newProductDtoArgumentCaptor.capture());
-        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getName(),"iPhone");
-        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getDescription(),"Mobile Phone");
-        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getPrice(),500);
+        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getName(),givenProductDto.getName());
+        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getDescription(),givenProductDto.getDescription());
+        Assertions.assertEquals(newProductDtoArgumentCaptor.getValue().getPrice(),givenProductDto.getPrice());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void whenInputToEditProductController_thenSameInputToService() throws Exception {
+    void whenInputToEditProduct_thenSameInputToService() throws Exception {
         ChangedProductDto givenChangedProductDto=new ChangedProductDto("Android","iPhone","Mobile Phone",500f);
 
         mockMvc.perform(put("/product/edit")

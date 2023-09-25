@@ -25,8 +25,7 @@ public class ProductController {
 
     @Operation(summary = "View all products",description = "Returns all products after authentication and user/admin authorization.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200,message = "Products successfully retrieved."),
-            @ApiResponse(code = 204,message = "No products found.")
+            @ApiResponse(code = 200,message = "Products successfully retrieved.")
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/all")
@@ -37,7 +36,7 @@ public class ProductController {
     @Operation(summary = "View one product",description = "Returns one product after authentication and user/admin authorization, providing its name in the request body.")
     @ApiResponses(value = {
             @ApiResponse(code = 200,message = "Product successfully retrieved."),
-            @ApiResponse(code = 204,message = "No product found.")
+            @ApiResponse(code = 400,message = "There is no product with this name.")
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/name")

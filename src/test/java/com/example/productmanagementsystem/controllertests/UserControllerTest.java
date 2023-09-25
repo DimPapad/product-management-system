@@ -14,15 +14,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.jboss.logging.MDC.get;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -43,8 +39,8 @@ public class UserControllerTest {
     private MyUserDetailsService myUserDetailsService;
 
     @Test
-    void whenValidInputOnRegister_thenReturns201() throws Exception {
-        NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios","PapDim","papdim@pmail.com","1234","1234");
+    void whenInputToRegisterUserWithoutAuthentication_thenReturns201() throws Exception {
+        NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios",null,"papdim@pmail.com","1234","12345");
 
         mockMvc.perform(post("/user/register")
                         .contentType("application/json")
@@ -53,7 +49,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void whenInputToRegisterController_thenSameInputToService() throws Exception {
+    void whenInputToRegisterUserWithoutAuthentication_thenSameInputToService() throws Exception {
         NewUserDto givenNewUserDto=new NewUserDto("Papadogiannakis","Dimitrios",null,"papdim@pmail.com","1234","12345");
 
         mockMvc.perform(post("/user/register")
@@ -62,35 +58,35 @@ public class UserControllerTest {
 
         ArgumentCaptor<NewUserDto> newUserDtoArgumentCaptor = ArgumentCaptor.forClass(NewUserDto.class);
         Mockito.verify(userService, times(1)).registerUser(newUserDtoArgumentCaptor.capture());
-        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getLastName(),"Papadogiannakis");
-        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getFirstName(),"Dimitrios");
-        Assertions.assertNull(newUserDtoArgumentCaptor.getValue().getUsername());
-        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getEmail(),"papdim@pmail.com");
-        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getPassword(),"1234");
-        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getMatchingPassword(),"12345");
+        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getLastName(),givenNewUserDto.getLastName());
+        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getFirstName(),givenNewUserDto.getFirstName());
+        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getUsername(),givenNewUserDto.getUsername());
+        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getEmail(),givenNewUserDto.getEmail());
+        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getPassword(),givenNewUserDto.getPassword());
+        Assertions.assertEquals(newUserDtoArgumentCaptor.getValue().getMatchingPassword(),givenNewUserDto.getMatchingPassword());
     }
 
     @Test
-    void whenLoginPage_thenReturns200() throws Exception {
+    void whenLoginPageWithoutAuthentication_thenReturns200() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/login"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void whenHomePageWithoutCredentials_thenReturns401() throws Exception {
+    void whenHomePageWithoutAuthentication_thenReturns401() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/home"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser
-    void whenHomePageWithCredentials_thenReturns200() throws Exception {
+    void whenHomePageWithAuthentication_thenReturns200() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/home"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void whenChangeRoleWithoutCredentials_thenReturns401() throws Exception {
+    void whenChangeRoleWithoutAuthentication_thenReturns401() throws Exception {
         UserDto givenUserDto=new UserDto("PapDim","ROLE_ADMIN");
         mockMvc.perform(put("/user/changerole").contentType("application/json")
                         .content(objectMapper.writeValueAsString(givenUserDto)))
@@ -100,7 +96,7 @@ public class UserControllerTest {
     @Test
     @WithMockUser
     void whenChangeRoleWithUserCredentials_thenReturns403() throws Exception {
-        UserDto givenUserDto=new UserDto("PapDim","ROLE_ADMIN");
+        UserDto givenUserDto=new UserDto("PapDim","ROLE_USER");
         mockMvc.perform(put("/user/changerole").contentType("application/json")
                         .content(objectMapper.writeValueAsString(givenUserDto)))
                 .andExpect(status().isForbidden());
@@ -108,8 +104,8 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void whenChangeRoleWithUserCredentials_thenReturns200() throws Exception {
-        UserDto givenUserDto=new UserDto("PapDim","ROLE_ADMIN");
+    void whenChangeRoleWithAdminCredentials_thenReturns200() throws Exception {
+        UserDto givenUserDto=new UserDto("PapDim","ROLE_USER");
         mockMvc.perform(put("/user/changerole").contentType("application/json")
                         .content(objectMapper.writeValueAsString(givenUserDto)))
                 .andExpect(status().isOk());
@@ -117,8 +113,8 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void whenInputToChangeRoleController_thenSameInputToService() throws Exception {
-        UserDto givenUserDto=new UserDto("PapDim","ROLE_ADMIN");
+    void whenInputToChangeRole_thenSameInputToService() throws Exception {
+        UserDto givenUserDto=new UserDto("PapDim","ROLE_USER");
 
         mockMvc.perform(put("/user/changerole")
                 .contentType("application/json")
@@ -126,8 +122,8 @@ public class UserControllerTest {
 
         ArgumentCaptor<UserDto> userDtoArgumentCaptor = ArgumentCaptor.forClass(UserDto.class);
         Mockito.verify(userService, times(1)).changeRole(userDtoArgumentCaptor.capture());
-        Assertions.assertEquals(userDtoArgumentCaptor.getValue().getUsername(),"PapDim");
-        Assertions.assertEquals(userDtoArgumentCaptor.getValue().getRole(),"ROLE_ADMIN");
+        Assertions.assertEquals(userDtoArgumentCaptor.getValue().getUsername(),givenUserDto.getUsername());
+        Assertions.assertEquals(userDtoArgumentCaptor.getValue().getRole(),givenUserDto.getRole());
     }
 
 
