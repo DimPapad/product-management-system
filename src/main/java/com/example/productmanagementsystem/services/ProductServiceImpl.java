@@ -2,9 +2,8 @@ package com.example.productmanagementsystem.services;
 
 import com.example.productmanagementsystem.dto.ChangedProductDto;
 import com.example.productmanagementsystem.dto.ProductDto;
-import com.example.productmanagementsystem.models.Product;
-import com.example.productmanagementsystem.models.ProductUser;
-import com.example.productmanagementsystem.models.User;
+import com.example.productmanagementsystem.dto.ProductUserDto;
+import com.example.productmanagementsystem.models.*;
 import com.example.productmanagementsystem.repositories.ProductRepository;
 import com.example.productmanagementsystem.repositories.ProductUserRepository;
 import com.example.productmanagementsystem.repositories.UserRepository;
@@ -120,9 +119,11 @@ public class ProductServiceImpl implements ProductService{
         newProductUser.setActionTime(new Timestamp(System.currentTimeMillis()));
         productUserRepository.save(newProductUser);
 
+        ProductDto deletedProductDto=new ProductDto(deletedProduct.getName(), deletedProduct.getDescription(), deletedProduct.getPrice());
+
         productRepository.deleteById(productUuid);
 
-        return new ProductDto(deletedProduct.getName(), deletedProduct.getDescription(), deletedProduct.getPrice());
+        return deletedProductDto;
     }
 
     @Override
@@ -134,6 +135,14 @@ public class ProductServiceImpl implements ProductService{
         productDto.setDescription(product.getDescription());
         productDto.setPrice(product.getPrice());
         return productDto;
+    }
+
+    @Override
+    public List<ProductUserDto> getProductAudit(String productUuid) {
+        List<ProductUserDto> productUsers=new ArrayList<>();
+        productUserRepository.findAllByProductUuid(productUuid).forEach(productUser -> productUsers.add(
+                new ProductUserDto(productUser.getUserUuid(),productUser.getActionLog(),productUser.getActionTime())));
+        return productUsers;
     }
 
 

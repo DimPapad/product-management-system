@@ -3,7 +3,9 @@ package com.example.productmanagementsystem.servicetests;
 import com.example.productmanagementsystem.dto.ChangedProductDto;
 import com.example.productmanagementsystem.dto.ProductDto;
 import com.example.productmanagementsystem.models.Product;
+import com.example.productmanagementsystem.dto.ProductUserDto;
 import com.example.productmanagementsystem.repositories.ProductRepository;
+import com.example.productmanagementsystem.repositories.ProductUserRepository;
 import com.example.productmanagementsystem.services.ProductServiceImpl;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +16,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,15 +27,14 @@ public class ProductServiceTest {
 
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private ProductUserRepository productUserRepository;
     @InjectMocks
     private ProductServiceImpl productServiceImpl;
     private final Product product=new Product();
-    private final ArrayList<Product> products=new ArrayList<>();
 
     @Test
     public void whenAskProducts_thenReturnsProducts() {
-        products.add(new Product());
-        given(productRepository.findAll()).willReturn(products);
         Assertions.assertTrue(productServiceImpl.getAllProducts() instanceof List<ProductDto>);
     }
 
@@ -108,6 +108,13 @@ public class ProductServiceTest {
     public void whenDeleteProductThatDoesNotExist_thenReturns400() {
         Exception noProductException=Assertions.assertThrows(ResponseStatusException.class,()->productServiceImpl.deleteProduct("no_name"));
         Assertions.assertEquals("400 BAD_REQUEST \"Product not found!\"",noProductException.getMessage());
+    }
+
+    @Test
+    @WithMockUser
+    public void whenAskProductAudit_thenReturnsProductUsers() {
+
+        Assertions.assertTrue(productServiceImpl.getProductAudit("333") instanceof List<ProductUserDto>);
     }
 
 

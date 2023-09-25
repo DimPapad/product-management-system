@@ -20,8 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -124,6 +123,29 @@ public class UserControllerTest {
         Mockito.verify(userService, times(1)).changeRole(userDtoArgumentCaptor.capture());
         Assertions.assertEquals(userDtoArgumentCaptor.getValue().getUsername(),givenUserDto.getUsername());
         Assertions.assertEquals(userDtoArgumentCaptor.getValue().getRole(),givenUserDto.getRole());
+    }
+
+    @Test
+    void whenUnauthorizedToViewUserAudit_thenReturns401() throws Exception {
+        mockMvc.perform(get("/user/audit/{userUuid}","333"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    void whenAuthorizedAndAuthenticatedToViewUserAudit_thenReturns200() throws Exception {
+        mockMvc.perform(get("/user/audit/{userUuid}","333"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void whenInputToViewUserAudit_thenSameInputToService() throws Exception {
+        mockMvc.perform(get("/user/audit/{userUuid}","333"));
+
+        ArgumentCaptor<String> userUuidArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(userService, times(1)).getUserAudit(userUuidArgumentCaptor.capture());
+        Assertions.assertEquals(userUuidArgumentCaptor.getValue(),"333");
     }
 
 

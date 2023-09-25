@@ -2,6 +2,7 @@ package com.example.productmanagementsystem.controllers;
 
 import com.example.productmanagementsystem.dto.NewUserDto;
 import com.example.productmanagementsystem.dto.UserDto;
+import com.example.productmanagementsystem.dto.UserProductDto;
 import com.example.productmanagementsystem.services.UserService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -9,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -64,6 +67,16 @@ public class UserController {
     @PutMapping("/changerole")
     public UserDto changeRole(@Parameter(name = "User", description = "User Information") @RequestBody UserDto userDto) {
         return userService.changeRole(userDto);
+    }
+
+    @Operation(summary = "User Audit",description = "Returns the actions of a user after authentication and user/admin authorization, providing user UUID as variable in URI path.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = "User audit successfully retrieved.")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/audit/{userUuid}")
+    public List<UserProductDto> getUserAudit(@Parameter(name = "User UUID", description = "User UUID") @PathVariable String userUuid) {
+        return userService.getUserAudit(userUuid);
     }
 
 

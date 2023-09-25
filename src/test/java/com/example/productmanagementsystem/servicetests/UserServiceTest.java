@@ -4,6 +4,8 @@ import com.example.productmanagementsystem.dto.NewUserDto;
 import com.example.productmanagementsystem.dto.UserDto;
 import com.example.productmanagementsystem.models.Role;
 import com.example.productmanagementsystem.models.User;
+import com.example.productmanagementsystem.dto.UserProductDto;
+import com.example.productmanagementsystem.repositories.ProductUserRepository;
 import com.example.productmanagementsystem.repositories.RoleRepository;
 import com.example.productmanagementsystem.repositories.UserRepository;
 import com.example.productmanagementsystem.services.UserServiceImpl;
@@ -16,6 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
@@ -28,6 +31,8 @@ public class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private RoleRepository roleRepository;
+    @Mock
+    private ProductUserRepository productUserRepository;
     @InjectMocks
     private UserServiceImpl userServiceImpl;
     private final User user=new User();
@@ -121,6 +126,12 @@ public class UserServiceTest {
         given(userRepository.findByUsername("PapDim")).willReturn(Optional.empty());
         Exception userException=Assertions.assertThrows(ResponseStatusException.class,()->userServiceImpl.changeRole(expectedUserDto));
         Assertions.assertEquals("400 BAD_REQUEST \"User not found!\"",userException.getMessage());
+    }
+
+    @Test
+    @WithMockUser
+    public void whenAskUserAudit_thenReturnsUserProducts() {
+        Assertions.assertTrue(userServiceImpl.getUserAudit("333") instanceof List<UserProductDto>);
     }
 
 

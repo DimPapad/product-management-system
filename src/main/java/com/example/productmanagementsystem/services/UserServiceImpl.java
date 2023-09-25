@@ -4,6 +4,8 @@ import com.example.productmanagementsystem.dto.NewUserDto;
 import com.example.productmanagementsystem.dto.UserDto;
 import com.example.productmanagementsystem.models.Role;
 import com.example.productmanagementsystem.models.User;
+import com.example.productmanagementsystem.dto.UserProductDto;
+import com.example.productmanagementsystem.repositories.ProductUserRepository;
 import com.example.productmanagementsystem.repositories.RoleRepository;
 import com.example.productmanagementsystem.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -13,16 +15,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService{
 
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ProductUserRepository productUserRepository;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, ProductUserRepository productUserRepository) {
         this.userRepository=userRepository;
         this.roleRepository=roleRepository;
+        this.productUserRepository=productUserRepository;
     }
 
     @Override
@@ -98,6 +105,14 @@ public class UserServiceImpl implements UserService{
         userDto.setFirstName(changedUser.getFirstName());
         userDto.setEmail(changedUser.getEmail());
         return userDto;
+    }
+
+    @Override
+    public List<UserProductDto> getUserAudit(String userUuid) {
+        List<UserProductDto> userProducts=new ArrayList<>();
+        productUserRepository.findAllByUserUuid(userUuid).forEach(productUser -> userProducts.add(
+                new UserProductDto(productUser.getProductUuid(),productUser.getActionLog(),productUser.getActionTime())));
+        return userProducts;
     }
 
 

@@ -207,5 +207,28 @@ public class ProductControllerTest {
         Assertions.assertEquals(productUuidCaptor.getValue(),"527000");
     }
 
+    @Test
+    void whenUnauthorizedToViewProductAudit_thenReturns401() throws Exception {
+        mockMvc.perform(get("/product/audit/{productUuid}","333"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    void whenAuthorizedAndAuthenticatedToViewProductAudit_thenReturns200() throws Exception {
+        mockMvc.perform(get("/product/audit/{productUuid}","333"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void whenInputToViewProductAudit_thenSameInputToService() throws Exception {
+        mockMvc.perform(get("/product/audit/{productUuid}","333"));
+
+        ArgumentCaptor<String> productUuidArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(productService, times(1)).getProductAudit(productUuidArgumentCaptor.capture());
+        Assertions.assertEquals(productUuidArgumentCaptor.getValue(),"333");
+    }
+
 
 }

@@ -2,6 +2,7 @@ package com.example.productmanagementsystem.controllers;
 
 import com.example.productmanagementsystem.dto.ChangedProductDto;
 import com.example.productmanagementsystem.dto.ProductDto;
+import com.example.productmanagementsystem.dto.ProductUserDto;
 import com.example.productmanagementsystem.services.ProductService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -67,7 +68,7 @@ public class ProductController {
         return productService.editProduct(changedProductDto);
     }
 
-    @Operation(summary = "Delete a product",description = "Deletes a product after authentication and admin authorization, providing its UUID as variable in URI path. Action log and action time are recorded in database. Returns deleted product information.")
+    @Operation(summary = "Delete a product",description = "Deletes a product after authentication and admin authorization, providing product UUID as variable in URI path. Action log and action time are recorded in database. Returns deleted product information.")
     @ApiResponses(value = {
             @ApiResponse(code = 204,message = "Product successfully deleted."),
             @ApiResponse(code = 400,message = "Product not found.")
@@ -76,6 +77,16 @@ public class ProductController {
     @DeleteMapping("/delete/{productUuid}")
     public ProductDto deleteProduct(@Parameter(name = "UUID", description = "Product UUID", example = "09dcecf6-84f0-4241-82cd-da5a1ca285cc") @PathVariable String productUuid) {
         return productService.deleteProduct(productUuid);
+    }
+
+    @Operation(summary = "Product Audit",description = "Returns the actions on a product after authentication and user/admin authorization, providing product UUID as variable in URI path.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,message = "Product audit successfully retrieved.")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/audit/{productUuid}")
+    public List<ProductUserDto> getProductAudit(@Parameter(name = "Product UUID", description = "Product UUID") @PathVariable String productUuid) {
+        return productService.getProductAudit(productUuid);
     }
 
 
